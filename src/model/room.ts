@@ -6,11 +6,12 @@ type Player = {
 }
 
 type Message = {
-    author: string,
+    user: string,
     message: string
 }
 
 class RoomDocument{
+    users: string[] = [];
     player: Player | null = null;
     messages: Message[] = [];
     constructor(public room: string){}

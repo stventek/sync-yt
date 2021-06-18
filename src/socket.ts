@@ -1,8 +1,11 @@
 import http from "http";
-import WebSocket from 'ws';
+import socketio from 'socket.io';
 
 export default (server: http.Server) => {
 
-    const wss = new WebSocket.Server({server});
+    const io = new socketio.Server(server, {cors: {origin: '*'}});
 
+    io.on('connection', (socket) => {
+        console.log(`socket ${socket.id} connected`);
+    })
 };
