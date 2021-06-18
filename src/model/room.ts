@@ -10,11 +10,18 @@ type Message = {
     message: string
 }
 
-class RoomDocument{
+export class RoomDocument{
     users: string[] = [];  
     player?: Player;
     messages: Message[] = [];
     constructor(public room: number){}
+
+    joinUser(user: string){
+        const userExists = this.users.find(e => e === user);
+        if(userExists)
+            return;
+        this.users.push(user);
+    }
 }
 
 class Room{

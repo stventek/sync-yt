@@ -1,6 +1,6 @@
 import http from "http";
 import socketio from 'socket.io';
-import Room from './model/room';
+import Room, {RoomDocument} from './model/room';
 
 type sendRoom = (room: number) => void;
 type sendStatus = (status: number) => void;
@@ -15,7 +15,7 @@ export default (server: http.Server) => {
         socket.on('create-room', (sendRoom: sendRoom | undefined) => {
             if(!sendRoom) return socket.disconnect();
             const room = Math.floor(Math.random() * 10**6);
-            Room.create({room, messages: [], users: []});
+            Room.create(new RoomDocument(room));
             sendRoom(room);
         });
 
@@ -23,8 +23,8 @@ export default (server: http.Server) => {
             if(!(username && room && sendStatus)) return socket.disconnect();
             const roomDocument = Room.findByCode(room);
             if(roomDocument){
-                roomDocument.users.push(username);
-                return sendStatus(1)
+                roomDocument.joinUser(username);
+                return sendStatus(1);
             }
             sendStatus(0);
         })
