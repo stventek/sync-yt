@@ -11,9 +11,9 @@ type Message = {
 }
 
 class RoomDocument{
-    users?: string[];
+    users: string[] = [];  
     player?: Player;
-    messages?: Message[];
+    messages: Message[] = [];
     constructor(public room: number){}
 }
 

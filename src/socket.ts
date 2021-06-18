@@ -3,6 +3,7 @@ import socketio from 'socket.io';
 import Room from './model/room';
 
 type sendRoom = (room: number) => void;
+type sendStatus = (status: number) => void;
 
 export default (server: http.Server) => {
 
@@ -14,9 +15,18 @@ export default (server: http.Server) => {
         socket.on('create-room', (sendRoom: sendRoom | undefined) => {
             if(!sendRoom) return socket.disconnect();
             const room = Math.floor(Math.random() * 10**6);
-            Room.create({room});
+            Room.create({room, messages: [], users: []});
             sendRoom(room);
-            console.log(Room.rooms);
+        });
+
+        socket.on('join-room', (username: string | undefined, room: number | undefined, sendStatus: sendStatus | undefined) => {
+            if(!(username && room && sendStatus)) return socket.disconnect();
+            const roomDocument = Room.findByCode(room);
+            if(roomDocument){
+                roomDocument.users.push(username);
+                return sendStatus(1)
+            }
+            sendStatus(0);
         })
     })
 };
