@@ -11,10 +11,10 @@ type Message = {
 }
 
 class RoomDocument{
-    users: string[] = [];
-    player: Player | null = null;
-    messages: Message[] = [];
-    constructor(public room: string){}
+    users?: string[];
+    player?: Player;
+    messages?: Message[];
+    constructor(public room: number){}
 }
 
 class Room{
@@ -24,7 +24,7 @@ class Room{
         this.rooms.push(room);
     }
 
-    findByCode(room: string){
+    findByCode(room: number){
         return this.rooms.find(roomDocument => roomDocument.room === room);
     }
 }
