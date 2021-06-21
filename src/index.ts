@@ -11,7 +11,7 @@ const server = new http.Server(app);
 webSocket(server);
 
 //config
-app.set('port', process.env.PORT || 4000);
+app.set('port', process.env.PORT || 5000);
 app.set('json spaces', 2);
 
 //middlewares
