@@ -25,9 +25,12 @@ export default (server: http.Server) => {
             if(roomDocument){
                 roomDocument.joinUser(username);
                 socket.join(room);
-                return sendStatus(1);
+                sendStatus(1);
+                if(roomDocument.player)
+                    socket.emit('update', roomDocument.getPlayerInfo())
             }
-            sendStatus(0);
+            else
+                sendStatus(0);
         });
 
         socket.on('play', (room: string, videoId: string) => {
@@ -56,14 +59,29 @@ export default (server: http.Server) => {
         
         socket.on('resume', (room: string) => {
             if(!room)
-                socket.disconnect();
+                return socket.disconnect();
             const roomDocument = Room.findByCode(room);
             if(roomDocument){
                 roomDocument.resumeVideo();
-                io.to(room).emit('resume-recive');
+                io.to(room).emit('resume-recive', roomDocument.getTimeElapsed());
             }
             else
                 socket.disconnect();
+        });
+
+        socket.on('seekTo', (room: string, start: number) => {
+            console.log(room, start);
+            if(!(room && start >= 0))
+                return socket.disconnect();
+            const roomDocument = Room.findByCode(room);
+            if(roomDocument && roomDocument.player){
+                roomDocument.seekTo(start);
+                io.to(room).emit('seekTo-recive', roomDocument.getTimeElapsed());
+            }
+            else{
+                console.log('disconected');
+                socket.disconnect();
+            }
         })
     })
 };

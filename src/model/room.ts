@@ -57,6 +57,32 @@ export class RoomDocument{
             this.player.startDate = startDate;
         }
     }
+
+    getPlayerInfo(){
+        if(this.player){
+            const pause = this.player.pause;
+            const videoId = this.player.videoId;
+            const timeElapsed = this.getTimeElapsed();
+            return {videoId, pause, timeElapsed}
+        }
+    }
+
+    getTimeElapsed(){
+        if(this.player){
+            if(this.player.pause){
+                return (this.player.pauseDate.getTime() - this.player.startDate.getTime());
+            }
+            else{
+                return (new Date().getTime() - this.player.startDate.getTime());
+            }
+        }
+    }
+
+    seekTo(start: number){
+        if(this.player){
+            this.player.startDate = new Date(new Date().getTime() - start);
+        }
+    }
 }
 
 class Room{
