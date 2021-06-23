@@ -23,11 +23,12 @@ export default (server: http.Server) => {
             if(!(username && room && sendStatus)) return socket.disconnect();
             const roomDocument = Room.findByCode(room);
             if(roomDocument){
-                roomDocument.joinUser(username);
+                roomDocument.joinUser(username, socket.id);
                 socket.join(room);
+                console.log('joining to room', room);
                 sendStatus(1);
                 if(roomDocument.player)
-                    socket.emit('update', roomDocument.getPlayerInfo())
+                    socket.emit('update', roomDocument.getPlayerInfo());
             }
             else
                 sendStatus(0);
@@ -49,7 +50,7 @@ export default (server: http.Server) => {
             if(!room)
                 return socket.disconnect();
             const roomDocument = Room.findByCode(room);
-            if(roomDocument){
+            if(roomDocument && roomDocument.player){
                 roomDocument.pauseVid();
                 io.to(room).emit('pause-recive');
             }
@@ -61,7 +62,7 @@ export default (server: http.Server) => {
             if(!room)
                 return socket.disconnect();
             const roomDocument = Room.findByCode(room);
-            if(roomDocument){
+            if(roomDocument && roomDocument.player){
                 roomDocument.resumeVideo();
                 io.to(room).emit('resume-recive', roomDocument.getTimeElapsed());
             }
@@ -70,7 +71,6 @@ export default (server: http.Server) => {
         });
 
         socket.on('seekTo', (room: string, start: number) => {
-            console.log(room, start);
             if(!(room && start >= 0))
                 return socket.disconnect();
             const roomDocument = Room.findByCode(room);
@@ -79,9 +79,19 @@ export default (server: http.Server) => {
                 io.to(room).emit('seekTo-recive', roomDocument.getTimeElapsed());
             }
             else{
-                console.log('disconected');
                 socket.disconnect();
             }
+        });
+
+        socket.on('disconnecting', () => {
+            
+            console.log('disconnecting', socket.id);
+            const rooms = Array.from(socket.rooms).filter(room => room !== socket.id);
+            rooms.forEach(room => {
+                const roomDocument = Room.findByCode(room);
+                if(roomDocument)
+                    roomDocument.userLeave(socket.id);
+            })
         })
     })
 };

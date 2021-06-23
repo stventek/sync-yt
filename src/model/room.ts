@@ -11,16 +11,19 @@ type Message = {
 }
 
 export class RoomDocument{
-    users: string[] = [];  
+    users: {name: string, socketId: string}[] = [];  
     player?: Player;
     messages: Message[] = [];
     constructor(public room: string){}
 
-    joinUser(user: string){
-        const userExists = this.users.find(e => e === user);
-        if(userExists)
-            return;
-        this.users.push(user);
+    joinUser(name: string, socketId: string){
+        this.users.push({name, socketId});
+    }
+
+    userLeave(socketId: string){
+        const index = this.users.findIndex(user => user.socketId === socketId);
+        if(index !== -1)
+            this.users.splice(index);
     }
 
     playNewVid(videoId: string){
