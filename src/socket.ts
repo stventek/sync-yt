@@ -84,7 +84,6 @@ export default (server: http.Server) => {
         });
 
         socket.on('disconnecting', () => {
-            
             console.log('disconnecting', socket.id);
             const rooms = Array.from(socket.rooms).filter(room => room !== socket.id);
             rooms.forEach(room => {
@@ -92,6 +91,16 @@ export default (server: http.Server) => {
                 if(roomDocument)
                     roomDocument.userLeave(socket.id);
             })
-        })
+        });
+
+        socket.on('leave', (room: string) => {
+            console.log(socket.id, ' just left the room ', room);
+            const roomDocument = Room.findByCode(room);
+            if(roomDocument)
+                roomDocument.userLeave(socket.id);
+            socket.leave(room);
+
+        });
+
     })
 };
