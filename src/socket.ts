@@ -29,12 +29,14 @@ export default (server: http.Server) => {
                 sendStatus(1);
                 if(roomDocument.player)
                     socket.emit('update', roomDocument.getPlayerInfo());
+                if(roomDocument.messages.length >= 1)
+                    socket.emit('join-chat', roomDocument.messages);
             }
             else
                 sendStatus(0);
         });
 
-        socket.on('play', (room: string, videoId: string) => {
+        socket.on('play', (room: string | undefined, videoId: string | undefined) => {
             if(!(room && videoId))
                 return socket.disconnect();
             const roomDocument = Room.findByCode(room);
@@ -46,7 +48,7 @@ export default (server: http.Server) => {
                 socket.disconnect();
         });
 
-        socket.on('pause', (room: string) => {
+        socket.on('pause', (room: string | undefined) => {
             if(!room)
                 return socket.disconnect();
             const roomDocument = Room.findByCode(room);
@@ -58,7 +60,7 @@ export default (server: http.Server) => {
                 socket.disconnect();
         });
         
-        socket.on('resume', (room: string) => {
+        socket.on('resume', (room: string | undefined) => {
             if(!room)
                 return socket.disconnect();
             const roomDocument = Room.findByCode(room);
@@ -70,8 +72,8 @@ export default (server: http.Server) => {
                 socket.disconnect();
         });
 
-        socket.on('seekTo', (room: string, start: number) => {
-            if(!(room && start >= 0))
+        socket.on('seekTo', (room: string | undefined, start: number | undefined) => {
+            if(!(room && start && typeof start === 'number' && start >= 0))
                 return socket.disconnect();
             const roomDocument = Room.findByCode(room);
             if(roomDocument && roomDocument.player){
@@ -93,14 +95,24 @@ export default (server: http.Server) => {
             })
         });
 
-        socket.on('leave', (room: string) => {
+        socket.on('leave', (room: string | undefined) => {
+            if(!room)
+                return;
             console.log(socket.id, ' just left the room ', room);
             const roomDocument = Room.findByCode(room);
             if(roomDocument)
                 roomDocument.userLeave(socket.id);
             socket.leave(room);
-
         });
 
+        socket.on('message', (room: string | undefined, message: string | undefined) => {
+            if(!(room && message))
+                return socket.disconnect();
+            const roomDocument = Room.findByCode(room);
+            if(roomDocument){
+                roomDocument.addMessage(message, socket.id);
+                io.to(room).emit('message-recive', {message, author: roomDocument.getUser(socket.id)?.name})
+            }
+        })
     })
 };
