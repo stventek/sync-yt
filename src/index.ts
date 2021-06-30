@@ -1,5 +1,4 @@
 //dependencies
-import morgan from 'morgan';
 import express from 'express';
 import 'dotenv/config';
 import cors from 'cors';
@@ -15,7 +14,12 @@ app.set('port', process.env.PORT || 5000);
 app.set('json spaces', 2);
 
 //middlewares
-app.use(morgan('dev'));
+if(process.env.NODE_ENV !== 'production'){
+    console.log('dev mode');
+    const morgan = require('morgan');
+    app.use(morgan('dev'));
+}
+
 app.use(express.urlencoded({extended: false}));
 app.use(express.json());
 app.use(cors());

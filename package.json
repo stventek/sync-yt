@@ -2,10 +2,15 @@
   "name": "sync-yt",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "./build/index.js",
+  "engines": {
+    "node": "14.17.0"
+  },
   "scripts": {
-    "start": "npx nodemon --watch ./src ./src/index.ts",
-    "build": "npx tsc"
+    "start": "node ./build/index.js",
+    "dev": "npx nodemon --watch ./src ./src/index.ts",
+    "build": "tsc",
+    "postinstall": "npm run build"
   },
   "keywords": [],
   "author": "",
