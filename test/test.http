@@ -1,0 +1,14 @@
+### test user sign in
+
+POST http://localhost:5000/user/signin
+Content-Type: application/json
+
+{
+    "email": "xenizs@protonmail.com",
+    "password": "12345678"
+}
+
+### test admin
+
+GET http://localhost:5000/admin
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIyLCJpYXQiOjE2Njk1Mjc0NTgsImV4cCI6MTY2OTUyODM1OH0.fttYK4apdJUg3WO_lUArB_bIhFbQfyDQseqKnjwc6AM

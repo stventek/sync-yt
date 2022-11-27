@@ -1,6 +1,6 @@
 import http from "http";
 import socketio from 'socket.io';
-import Room, {RoomDocument} from './model/room';
+import Room, {RoomDocument} from './models/room';
 
 type sendRoom = (room: string) => void;
 type sendStatus = (status: number) => void;
