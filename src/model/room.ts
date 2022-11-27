@@ -7,11 +7,12 @@ type Player = {
 
 type Message = {
     author: string,
-    message: string
+    message: string,
+    color: string
 }
 
 export class RoomDocument{
-    users: {name: string, socketId: string}[] = [];  
+    users: {name: string, socketId: string, color: string}[] = [];  
     player?: Player;
     messages: Message[] = [];
     constructor(public room: string){}
@@ -25,14 +26,14 @@ export class RoomDocument{
     addMessage(message: string, socketId: string){
         const index = this.users.findIndex(user => user.socketId === socketId);
         if(index !== -1){
-            this.messages.push({message, author: this.users[index].name});
+            this.messages.push({message, author: this.users[index].name, color: this.users[index].color});
             if(this.messages.length > 51)
                 this.messages.shift();
         }
     }
 
-    joinUser(name: string, socketId: string){
-        this.users.push({name, socketId});
+    joinUser(name: string, color: string, socketId: string){
+        this.users.push({name, socketId, color});
     }
 
     userLeave(socketId: string){

@@ -19,11 +19,12 @@ export default (server: http.Server) => {
             sendRoom(room);
         });
 
-        socket.on('join-room', (username: string | undefined, room: string | undefined, sendStatus: sendStatus | undefined) => {
-            if(!(username && room && sendStatus)) return socket.disconnect();
+        socket.on('join-room', (username: string | undefined, room: string | undefined, color: any, sendStatus: sendStatus | undefined) => {
+            console.log(!(username && room && sendStatus && color))
+            if(!(username && room && sendStatus && color)) return socket.disconnect();
             const roomDocument = Room.findByCode(room);
             if(roomDocument){
-                roomDocument.joinUser(username, socket.id);
+                roomDocument.joinUser(username, color, socket.id);
                 socket.join(room);
                 console.log('joining to room', room);
                 sendStatus(1);
@@ -31,6 +32,7 @@ export default (server: http.Server) => {
                     socket.emit('update', roomDocument.getPlayerInfo());
                 if(roomDocument.messages.length >= 1)
                     socket.emit('join-chat', roomDocument.messages);
+                io.to(room).emit('message-recive', {message: `${username} has joined the room`, author: 'server', color: '#F'})
             }
             else
                 sendStatus(0);
@@ -106,12 +108,12 @@ export default (server: http.Server) => {
         });
 
         socket.on('message', (room: string | undefined, message: string | undefined) => {
-            if(!(room && message))
-                return socket.disconnect();
+            if(!(room && message)) return socket.disconnect();
             const roomDocument = Room.findByCode(room);
             if(roomDocument){
                 roomDocument.addMessage(message, socket.id);
-                io.to(room).emit('message-recive', {message, author: roomDocument.getUser(socket.id)?.name})
+                const user = roomDocument.getUser(socket.id)
+                io.to(room).emit('message-recive', {message, author: user?.name, color: user?.color})
             }
         })
     })

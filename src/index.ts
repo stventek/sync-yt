@@ -4,6 +4,7 @@ import 'dotenv/config';
 import cors from 'cors';
 import webSocket from './socket';
 import http from 'http';
+import testRoute from './routes/test.route';
 
 const app = express();
 const server = new http.Server(app);
@@ -20,9 +21,15 @@ if(process.env.NODE_ENV !== 'production'){
     app.use(morgan('dev'));
 }
 
+//parsers 
 app.use(express.urlencoded({extended: false}));
 app.use(express.json());
+
+//cors
 app.use(cors());
+
+//routes
+app.use(testRoute)
 
 //start server
 server.listen(app.get('port'), () => {
