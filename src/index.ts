@@ -8,6 +8,7 @@ import userRouter from './routes/user.router'
 import adminRouter from './routes/admin.router'
 import sequelize from './databases/database'
 import './models/user.model'
+import './models/room-history.model'
 import errorHandler from './utils/error-handler'
 
 const app = express()

@@ -1,6 +1,7 @@
 import http from "http";
 import socketio from 'socket.io';
 import Room, {RoomDocument} from './models/room';
+import RoomHistory from "./models/room-history.model";
 
 type sendRoom = (room: string) => void;
 type sendStatus = (status: number) => void;
@@ -12,21 +13,22 @@ export default (server: http.Server) => {
     io.on('connection', (socket) => {
         console.log(`socket ${socket.id} connected`);
 
-        socket.on('create-room', (sendRoom: sendRoom | undefined) => {
+        socket.on('create-room', async(sendRoom: sendRoom | undefined) => {
             if(!sendRoom) return socket.disconnect();
             const room = Math.floor(Math.random() * 10**6).toString();
             Room.create(new RoomDocument(room));
+            await RoomHistory.create({action: 'CREATE'})
             sendRoom(room);
         });
 
-        socket.on('join-room', (username: string | undefined, room: string | undefined, color: any, sendStatus: sendStatus | undefined) => {
-            console.log(!(username && room && sendStatus && color))
+        socket.on('join-room', async(username: string | undefined, room: string | undefined, color: any, sendStatus: sendStatus | undefined) => {
             if(!(username && room && sendStatus && color)) return socket.disconnect();
             const roomDocument = Room.findByCode(room);
             if(roomDocument){
                 roomDocument.joinUser(username, color, socket.id);
                 socket.join(room);
                 console.log('joining to room', room);
+                await RoomHistory.create({action: 'JOIN'})
                 sendStatus(1);
                 if(roomDocument.player)
                     socket.emit('update', roomDocument.getPlayerInfo());
