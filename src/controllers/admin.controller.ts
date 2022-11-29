@@ -2,32 +2,28 @@ import { Request, Response } from 'express'
 import Room from '../models/room'
 import RoomHistory from '../models/room-history.model';
 import sequelize from 'sequelize'
+import { Op }  from 'sequelize'
 
 const getGraph = async(fromDate: string, toDate: string, groupBy: string) => {
-    console.log(groupBy)
     const col1Alias =  `trunc${groupBy}`;
 
-    const totalCreateResult = await RoomHistory.findAll({where: {action: 'CREATE'},attributes: 
+    const totalCreateResult = await RoomHistory.findAll({order:[col1Alias], where: {action: 'CREATE', createdAt: {[Op.gte]: fromDate, [Op.lte]: toDate}}, attributes: 
     [
         [sequelize.fn('date_trunc', `${groupBy}`, sequelize.col('createdAt')), col1Alias],
         [sequelize.fn('count', sequelize.col('*')), 'totalCreate']
     ], group: [col1Alias]})
 
-    const totalJoinResult = await RoomHistory.findAll({where: {action: 'JOIN'},attributes: 
+    const totalJoinResult = await RoomHistory.findAll({order:[col1Alias], where: {action: 'JOIN', createdAt: {[Op.gte]: fromDate, [Op.lte]: toDate}}, attributes: 
     [
         [sequelize.fn('date_trunc', `${groupBy}`, sequelize.col('createdAt')), col1Alias],
         [sequelize.fn('count', sequelize.col('*')), 'totalJoin']
     ], group: [col1Alias]})
 
-    const totalCreate = {
-        data: totalCreateResult.map(e => e.get('totalCreate')),
-        labels: totalCreateResult.map(e => e.get(col1Alias))
-    }
-    const totalJoin = {
-        data: totalJoinResult.map(e => e.get('totalJoin')),
-        labels: totalJoinResult.map(e => e.get(col1Alias))
-    }
-    return {totalCreate, totalJoin}
+    const datasets = []
+    const labels = totalCreateResult.map(e => e.get(col1Alias))
+    datasets.push({label: 'created', data: totalCreateResult.map(e => e.get('totalCreate'))})
+    datasets.push({label: 'joined', data: totalJoinResult.map(e => e.get('totalJoin'))})
+    return {labels, datasets}
 }
 
 export const adminController = async (req: Request, res: Response) => {
@@ -43,5 +39,7 @@ export const dashboardController = async (req: Request, res: Response) => {
     })
     const welcomeMessage = `Welcome back ${req.user.name}`
     const graph = await getGraph(fromDate, toDate, groupBy)
-    return res.json({activeRooms, activeUsers, welcomeMessage, graph})
+    const totalCreated = await RoomHistory.count({where: {action: 'CREATE'}})
+    const totalJoin = await RoomHistory.count({where: {action: 'JOIN'}})
+    return res.json({activeRooms, activeUsers, welcomeMessage, totalCreated, totalJoin, graph})
 };

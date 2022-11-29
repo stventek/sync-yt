@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
 
 export const IssueJwt = (payload: any) => {
-    //expires in 15min
-    return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET || '', { expiresIn: '900000ms' });
+    //expires in 1 day,  1000 * 60 * 60 * 24 = 86400000
+    return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET || '', { expiresIn: '86400000ms' });
 }
 
 export const verifyJwt = (token: string ) => {

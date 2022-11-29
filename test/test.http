@@ -19,4 +19,4 @@ GET http://localhost:5000/admin/dashboard
 ?fromDate=2022-01-01
 &toDate=2023-01-01
 &groupBy=month
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIyLCJpYXQiOjE2Njk1ODQ3MzMsImV4cCI6MTY2OTU4NTYzM30.UV3eQJFJVUogBxbWbOLqCjMSGCZMDWyt97UnTAZFi5M
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIyLCJpYXQiOjE2Njk1OTE1MjUsImV4cCI6MTY2OTU5MjQyNX0.E31vP9cprYfbfHr_Nldycr5wwdCdUwQi0VVISckrs1g
