@@ -39,7 +39,7 @@ export class RoomDocument{
     userLeave(socketId: string){
         const index = this.users.findIndex(user => user.socketId === socketId);
         if(index !== -1)
-            this.users.splice(index);
+            this.users.splice(index, 1);
     }
 
     playNewVid(videoId: string){

@@ -108,6 +108,7 @@ export default (server: http.Server) => {
             const roomDocument = Room.findByCode(room);
             if(roomDocument)
                 roomDocument.userLeave(socket.id);
+            console.log(roomDocument?.users.length)
             if(roomDocument?.users &&  roomDocument.users.length === 0)
                 Room.rooms.splice(Room.rooms.indexOf(roomDocument), 1)
             socket.leave(room);

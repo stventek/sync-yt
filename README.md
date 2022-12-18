@@ -37,3 +37,7 @@ Web app to watch youtube videos with others synchronously, includes:
 - typescript, as programming language.
 - sequelize, as ORM.
 - and more... (check package.json for the complete list).
+
+## Create super user
+
+- run ```npm run create-admin -- --email=... --password=... --name=... --username=...```
