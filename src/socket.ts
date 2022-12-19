@@ -5,6 +5,8 @@ import RoomHistory from "./models/room-history.model";
 
 type sendRoom = (room: string) => void;
 type sendStatus = (status: number) => void;
+type sendRes = (stats: number, res: any) => void;
+type req = {}
 
 export default (server: http.Server) => {
 
@@ -12,6 +14,21 @@ export default (server: http.Server) => {
 
     io.on('connection', (socket) => {
         console.log(`socket ${socket.id} connected`);
+
+        socket.on('userUpdate', (req: any, sendRes: sendRes) => {
+            if(req && req.room && req.color && req.username){
+                const roomDocument = Room.findByCode(req.room)
+                if(roomDocument){
+                    const user = roomDocument.getUser(socket.id)
+                    if(user){
+                        user.color = req.color
+                        user.name = req.username
+                        return sendRes(200, {})
+                    }
+                }
+            }
+            return sendRes(400, {})
+        })
 
         socket.on('create-room', async(sendRoom: sendRoom | undefined) => {
             if(!sendRoom) return socket.disconnect();
